@@ -1,0 +1,104 @@
+ModelMapper Library 
+https://modelmapper.org/getting-started/
+
+
+Step :1
+
+<dependency>
+   <groupId>org.modelmapper</groupId>
+   <artifactId>modelmapper</artifactId>
+   <version>3.1.0</version>
+</dependency>
+
+Step 2:
+Configure Model Mapper class as Spring Bean
+
+@SpringBootApplication
+public class RestServicesApplication {
+
+   public static void main(String[] args) {
+      SpringApplication.run(RestServicesApplication.class, args);
+   }
+
+
+   @Bean
+   public ModelMapper getModelMapper(){
+      return new ModelMapper();
+   }
+
+}
+
+Step 3: Use Map Method
+
+import com.example.restservices.dto.UserDto;
+import com.example.restservices.entity.User;
+import com.example.restservices.mapper.UserMapper;
+import com.example.restservices.repo.UserRepo;
+import com.example.restservices.service.UserService;
+import lombok.AllArgsConstructor;
+import org.modelmapper.ModelMapper;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+
+@Service
+@AllArgsConstructor
+public class UserServiceImpl implements UserService {
+    private UserRepo repo;
+    private ModelMapper mapper;
+
+    @Override
+    public UserDto createUser(UserDto userDto) {
+        //UserDto to User JPA Entity
+        //User user = UserMapper.mapToUser(userDto);
+        User user = mapper.map(userDto, User.class);
+
+        User savedUser = repo.save(user);
+        //User to UserDto JPA Entity
+        //UserDto userDto1 = UserMapper.mapToUserDto(savedUser);
+        UserDto userDto1 = mapper.map(savedUser, UserDto.class);
+        return userDto1;
+    }
+
+    @Override
+    public UserDto getUserById(Long id) {
+        User user =  repo.findById(id).get();
+//      UserDto userDto = UserMapper.mapToUserDto(user);
+        UserDto userDto = mapper.map(user, UserDto.class);
+        return userDto;
+    }
+
+    @Override
+    public List<UserDto> getAllUsers() {
+        List<User> list = repo.findAll();
+        List<UserDto> listdto = list.stream()
+                .map((user) -> mapper.map(user, UserDto.class))
+                .collect(Collectors.toList());
+        return listdto;
+    }
+
+    @Override
+    public UserDto updateUser(Long id, UserDto userDto) {
+        User savedUser =  repo.findById(id).get();
+        savedUser.setFname(userDto.getFname());
+        savedUser.setLname(userDto.getLname());
+        savedUser.setEmail(userDto.getEmail());
+
+//      UserDto savedDto = UserMapper.mapToUserDto(savedUser);
+        UserDto savedDto = mapper.map(savedUser, UserDto.class);
+
+        return savedDto;
+    }
+
+    @Override
+    public String deleteUser(Long id) {
+        repo.deleteById(id);
+        return "User Successfully Deleted";
+    }
+
+
+}
