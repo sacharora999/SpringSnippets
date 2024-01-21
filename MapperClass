@@ -1,0 +1,35 @@
+Data Transfer Object
+Reduce the num of remote calls. DTO class has details ath organization, List of Depts and List of Employees. Instead of making separate API calls to three services, DTO class hold the info abt each service.
+Only Send the required data to the client.
+
+Diadv of using JPA Entities to transfer the data between client and server
+	Transferring the sensitive information / Security Issues
+
+
+Using Mapper Class
+
+package com.example.restservices.mapper;
+
+import com.example.restservices.dto.UserDto;
+import com.example.restservices.entity.User;
+
+public class UserMapper {
+    public static UserDto mapToUserDto(User user){
+        UserDto userDto = new UserDto(
+                user.getId(),
+                user.getFname(),
+                user.getLname(),
+                user.getEmail()
+        );
+        return userDto;
+    }
+    public static User mapToUser(UserDto userDto){
+        User user = new User(
+                userDto.getId(),
+                userDto.getFname(),
+                userDto.getLname(),
+                userDto.getEmail()
+        );
+        return user;
+    }
+}
