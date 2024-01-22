@@ -110,11 +110,11 @@ public class UserDto {
 
     @NotEmpty(message = "First Name shud not be empty")
     private String fname;
-    @NotEmpty(message = "First Name shud not be empty")
+    @NotEmpty(message = "Last Name shud not be empty")
     private String lname;
 
-    @NotEmpty(message = "First Name shud not be empty")
-    @Email(message = "Not a valid emial")
+    @NotEmpty(message = "Email Name shud not be empty")
+    @Email(message = "Not a valid email")
     private String email;
 
 
