@@ -73,7 +73,8 @@ public class UserServiceImpl implements UserService {
     public UserDto getUserById(Long id) {
         User user =  repo.findById(id).get();
 //      UserDto userDto = UserMapper.mapToUserDto(user);
-        UserDto userDto = mapper.map(user, UserDto.class);
+//        UserDto userDto = mapper.map(user, UserDto.class);
+        UserDto userDto = AutoUserMapper.MAPPER.mapToUserDto(user);
         return userDto;
     }
 
@@ -81,7 +82,8 @@ public class UserServiceImpl implements UserService {
     public List<UserDto> getAllUsers() {
         List<User> list = repo.findAll();
         List<UserDto> listdto = list.stream()
-                .map((user) -> mapper.map(user, UserDto.class))
+//                .map((user) -> mapper.map(user, UserDto.class))
+                .map((user) -> AutoUserMapper.MAPPER.mapToUserDto(user))
                 .collect(Collectors.toList());
         return listdto;
     }
@@ -94,7 +96,8 @@ public class UserServiceImpl implements UserService {
         savedUser.setEmail(userDto.getEmail());
 
 //      UserDto savedDto = UserMapper.mapToUserDto(savedUser);
-        UserDto savedDto = mapper.map(savedUser, UserDto.class);
+//        UserDto savedDto = mapper.map(savedUser, UserDto.class);
+        UserDto savedDto = AutoUserMapper.MAPPER.mapToUserDto(savedUser);
 
         return savedDto;
     }
@@ -107,6 +110,3 @@ public class UserServiceImpl implements UserService {
 
 
 }
-
-
-
