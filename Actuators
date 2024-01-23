@@ -1,0 +1,65 @@
+Step1 :
+
+Add Dependency :
+<dependency>
+	<groupId>org.springframework.boot</groupId>
+  	<artifactId>spring-boot-starter-actuator</artifactId>
+</dependency>
+
+Step2 :
+management.endpoints.web.exposure.include=*
+
+
+
+Step 3 :
+http://localhost:8080/actuator/info
+
+management.info.env.enabled=true
+
+info.app.name=Spring Boot Restful Web Services
+info.app.description=Spring Boot Restful Web Services Description
+info.app.version=1.0.0
+
+
+
+http://localhost:8080/actuator/health
+
+management.endpoint.health.show-details=always
+http://localhost:8080/actuator/beans
+All the spring beans that are registered in application context
+
+
+
+
+http://localhost:8080/actuator/conditions
+Positive matches: Whenever it finds jar dependencies under class path 
+Negative matches: Whenever jar dependencies under class path are not present
+
+
+http://localhost:8080/actuator/mappings
+API endpoints to method names
+
+
+http://localhost:8080/actuator/configprops
+
+
+http://localhost:8080/actuator/metrics
+Used Memory, Free Memory, Number of thread Used
+
+
+http://localhost:8080/actuator/env
+
+http://localhost:8080/actuator/threaddump
+
+http://localhost:8080/actuator/loggers
+
+http://localhost:8080/actuator/loggers/com.example.restservices
+
+{
+    "configuredLevel": "DEBUG",
+    "effectiveLevel": "DEBUG"
+}
+
+http://localhost:8080/actuator/shutdown
+
+
