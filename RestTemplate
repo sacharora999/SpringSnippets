@@ -22,6 +22,11 @@ public class EmployeeDto {
 }
 
 
+@Bean
+	public RestTemplate restTemplate(){
+		return new RestTemplate();
+}
+
 
 
 Step 2 : Cretae DepartmentDto in Empl Service
