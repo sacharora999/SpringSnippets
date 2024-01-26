@@ -1,0 +1,63 @@
+Step 1: 
+Add departmentCode in EmployeeDto
+
+package com.example.empl.dto;
+
+import lombok.*;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString
+public class EmployeeDto {
+
+
+    private Long id;
+    private String firstName;
+    private String lastName;
+    private String email;
+    private String departmentCode;
+
+}
+
+
+
+
+Step 2 : Cretae DepartmentDto in Empl Service
+
+
+package com.example.empl.dto;
+
+import lombok.*;
+
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
+public class DepartmentDto {
+    private Long id;
+    private String departmentName;
+    private String departmentDescription;
+    private String departmentCode;
+}
+
+
+
+Step 3: Create ApiReponseDto 
+
+package com.example.empl.dto;
+
+import lombok.*;
+
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
+public class ApiReponseDto {
+
+    private EmployeeDto employeeDto;
+    private DepartmentDto departmentDto;
+}
