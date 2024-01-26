@@ -1,0 +1,194 @@
+springdoc-openapi java library => API Documentation + Integration between spring boot and swagger UI
+
+@OpenAPIDefinition (=>@Info, @Tag, @SecurityRequirement, @Server, @ServerVariable)
+@Tag
+@Operation
+@ApiResponse
+
+
+Step 1:
+
+<!-- https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-starter-webmvc-ui -->
+<dependency>
+    <groupId>org.springdoc</groupId>)
+    <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+    <version>2.2.0</version>
+</dependency>
+
+
+
+Step 2:
+http://localhost:8080/swagger-ui/index.html
+
+
+
+Step 3: General API Information
+https://github.com/swagger-api/swagger-core/wiki/Swagger-2.X---Annotations
+@OpenAPIDefinition(
+            info = @Info(
+                    title = "the title",
+                    version = "0.0",
+                    description = "My API",
+                    license = @License(name = "Apache 2.0", url = "http://foo.bar"),
+                    contact = @Contact(url = "http://gigantic-server.com", name = "Fred", email = "Fred@gigagantic-server.com")
+            ),
+            tags = {
+                    @Tag(name = "Tag 1", description = "desc 1", externalDocs = @ExternalDocumentation(description = "docs desc")),
+                    @Tag(name = "Tag 2", description = "desc 2", externalDocs = @ExternalDocumentation(description = "docs desc 2")),
+                    @Tag(name = "Tag 3")
+            },
+            externalDocs = @ExternalDocumentation(description = "definition docs desc"),
+            security = {
+                    @SecurityRequirement(name = "req 1", scopes = {"a", "b"}),
+                    @SecurityRequirement(name = "req 2", scopes = {"b", "c"})
+            },
+            servers = {
+                    @Server(
+                            description = "server 1",
+                            url = "http://foo",
+                            variables = {
+                                    @ServerVariable(name = "var1", description = "var 1", defaultValue = "1", allowableValues = {"1", "2"}),
+                                    @ServerVariable(name = "var2", description = "var 2", defaultValue = "1", allowableValues = {"1", "2"})
+                            })
+            }
+    )
+
+
+
+Step 4: Swagger API Documentation with Annotations
+
+package com.example.restservices.controller;
+
+import com.example.restservices.dto.UserDto;
+import com.example.restservices.entity.User;
+import com.example.restservices.exception.ErrorDetails;
+import com.example.restservices.exception.ResourceNotFoundException;
+import com.example.restservices.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.WebRequest;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+
+@Tag(
+        name= "CRUD Oprs",
+        description = "CRUD Desc"
+)
+@RestController
+@AllArgsConstructor
+@RequestMapping("users")
+public class UserController {
+
+    UserService service;
+
+    @Operation(summary = "Create API", description = "Create API in DB")
+    @ApiResponse(responseCode = "201", description = "HTTP Status Created")
+    @PostMapping("create")
+    public ResponseEntity<UserDto> createMyUser(@RequestBody @Valid UserDto userDto){
+        return new ResponseEntity(service.createUser(userDto), HttpStatus.CREATED);
+    }
+
+
+    @Operation(summary = "Get API", description = "Get API from DB for one user")
+    @ApiResponse(responseCode = "200", description = "HTTP Status Get")
+    @GetMapping("{id}")
+    public ResponseEntity<UserDto> getMyUser(@PathVariable("id") Long id){
+        return new ResponseEntity(service.getUserById(id), HttpStatus.OK);
+    }
+
+
+    @Operation(summary = "Get List API", description = "Get List API")
+    @ApiResponse(responseCode = "200", description = "HTTP Status Get")
+    @GetMapping
+    public ResponseEntity<List<UserDto>> getAllMyUsers(){
+        return new ResponseEntity(service.getAllUsers(), HttpStatus.OK);
+    }
+
+
+    @Operation(summary = "Put API", description = "Put API in DB")
+    @ApiResponse(responseCode = "200", description = "HTTP Status Put")
+
+    @PutMapping("{id}")
+    public ResponseEntity<UserDto> updateMyUser(@PathVariable("id") Long id, @RequestBody @Valid  UserDto userDto){
+        UserDto updatedUserDto = service.updateUser(id, userDto);
+        System.out.println(updatedUserDto);
+        return new ResponseEntity(updatedUserDto, HttpStatus.OK);
+    }
+
+
+    @Operation(summary = "Delete API", description = "Delete API in DB")
+    @ApiResponse(responseCode = "200", description = "HTTP Status Delete")
+    @DeleteMapping("{id}")
+    public ResponseEntity<String> deleteMyUser(@PathVariable("id") Long id){
+        return new ResponseEntity(service.deleteUser(id), HttpStatus.OK);
+    }
+
+
+
+
+
+
+//    @ExceptionHandler(ResourceNotFoundException.class)
+//    public ResponseEntity<ErrorDetails> handleResourceNotFoundException(ResourceNotFoundException exception,
+//                                                                        WebRequest request){
+//        ErrorDetails errorDetails = new ErrorDetails(
+//                LocalDateTime.now(),
+//                exception.getMessage(),
+//                request.getDescription(false),
+//                "USER NOT FOUND CODE"
+//        );
+//        return new ResponseEntity<>(errorDetails, HttpStatus.NOT_FOUND);
+//    }
+
+}
+
+
+
+
+Step 5 : DTO Annotations
+
+package com.example.restservices.dto;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.annotation.Nonnull;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotEmpty;
+import lombok.*;
+
+
+
+@Schema(description = "DTO DTO")
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
+public class UserDto {
+
+    private Long id;
+
+    @Schema(description = "userFirst name")
+    @NotEmpty(message = "First Name shud not be empty")
+    private String fname;
+    @Schema(description = "userLast name")
+    @NotEmpty(message = "First Name shud not be empty")
+    private String lname;
+
+    @Schema(description = "user email")
+    @NotEmpty(message = "First Name shud not be empty")
+    @Email(message = "Not a valid emial")
+    private String email;
+
+
+
+
+}
+
