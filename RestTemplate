@@ -61,3 +61,71 @@ public class ApiReponseDto {
     private EmployeeDto employeeDto;
     private DepartmentDto departmentDto;
 }
+
+
+
+
+
+
+Step 4 : Update Serivce to use restTemplate
+
+package com.example.empl.service.impl;
+
+import com.example.empl.dto.ApiReponseDto;
+import com.example.empl.dto.DepartmentDto;
+import com.example.empl.dto.EmployeeDto;
+import com.example.empl.entity.Employee;
+import com.example.empl.mapper.EmployeeMapper;
+import com.example.empl.repo.EmployeeRepo;
+import com.example.empl.service.EmployeeService;
+import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+@AllArgsConstructor
+public class EmployeeServiceImpl implements EmployeeService {
+
+
+    private EmployeeRepo employeeRepo;
+    private RestTemplate restTemplate;
+
+
+    @Override
+    public EmployeeDto createEmployee(EmployeeDto employeeDto) {
+        EmployeeMapper employeeMapper = new EmployeeMapper();
+        Employee employee = employeeMapper.mapToEmployee(employeeDto);
+        Employee savedEmployee = employeeRepo.save(employee);
+        EmployeeDto eDto = employeeMapper.mapToEmployeeDto(savedEmployee);
+        return eDto;
+    }
+
+    @Override
+    public ApiReponseDto getEmplById(Long id) {
+        EmployeeMapper employeeMapper = new EmployeeMapper();
+        Employee savedEmployee = employeeRepo.findById(id).get();
+
+        ResponseEntity<DepartmentDto> responseEntity = restTemplate.getForEntity("http://localhost:8080/api/departments/"+savedEmployee.getDepartmentCode(),
+                DepartmentDto.class);
+
+        DepartmentDto departmentDto = responseEntity.getBody();
+        EmployeeDto employeeDto = employeeMapper.mapToEmployeeDto(savedEmployee);
+
+        ApiReponseDto apiReponseDto = new ApiReponseDto();
+        apiReponseDto.setEmployeeDto(employeeDto);
+        apiReponseDto.setDepartmentDto(departmentDto);
+        return apiReponseDto;
+    }
+
+    @Override
+    public List<EmployeeDto> getAllEmp() {
+        EmployeeMapper employeeMapper = new EmployeeMapper();
+        List<Employee> list = employeeRepo.findAll();
+        List<EmployeeDto> listDto = list.stream().map((empl)->employeeMapper.mapToEmployeeDto(empl)).collect(Collectors.toList());
+        return listDto;
+    }
+}
