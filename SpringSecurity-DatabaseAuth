@@ -55,3 +55,34 @@ public class User {
 
 
 
+
+
+import com.example.demotodomyapp.entity.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.Optional;
+
+public interface UserRepo extends JpaRepository<User, Long> {
+
+    Optional<User> findByUsername(String username);
+    Boolean existsByEmail(String email);
+    Optional<User> findByUsernameOrEmail(String username, String email);
+
+
+
+}
+
+
+
+
+
+
+
+
+
+import com.example.demotodomyapp.entity.Role;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface RoleRepo extends JpaRepository<Role, Long> {
+}
+
