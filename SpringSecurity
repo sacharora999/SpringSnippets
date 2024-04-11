@@ -9,21 +9,127 @@ spring.security.user.password=sachin
 spring.security.user.roles=ADMIN, USER, MANAGER
 
 
-Basic Auth
-
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
+@EnableMethodSecurity
 public class SpringSecurityConfig {
 
     @Bean
+    public PasswordEncoder passwordEncoder(){
+        return  new BCryptPasswordEncoder();
+    }
+
+    //Basic Auth
+    @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf((csrf) -> csrf.disable()).authorizeHttpRequests((authorize) -> {
-                    authorize.anyRequest().authenticated();
+//                    authorize.requestMatchers(HttpMethod.GET, "/todos/**").permitAll();
+//                    authorize.requestMatchers(HttpMethod.POST, "/todos/**").hasRole("ADMIN");
+//                    authorize.requestMatchers(HttpMethod.PUT, "/todos/**").hasRole("ADMIN");
+//                    authorize.requestMatchers(HttpMethod.DELETE, "/todos/**").hasRole("ADMIN");
+//                    authorize.requestMatchers(HttpMethod.PATCH, "/todos/**").hasAnyRole("ADMIN", "USER");
+//                    authorize.anyRequest().authenticated();
     }).httpBasic(Customizer.withDefaults());
         return http.build();
     }
+
+    //In Mem Auth
+    @Bean
+    public UserDetailsService userDetailsService(){
+        UserDetails sachin = User.builder().username("sachin").password(passwordEncoder().encode("sachin")).roles("USER").build();
+        UserDetails admin = User.builder().username("admin").password(passwordEncoder().encode("admin123")).roles("ADMIN").build();
+        return new InMemoryUserDetailsManager(sachin, admin);
+    }
+}
+
+
+
+Method Level Sec
+
+import com.example.demotodomyapp.dto.ToDoDto;
+import com.example.demotodomyapp.service.Impl.ToDoServImpl;
+import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/todos/")
+@AllArgsConstructor
+public class ToDoController {
+
+    ToDoServImpl toDoServImpl;
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("todo")
+    public ResponseEntity<ToDoDto> addmyToDo(@RequestBody ToDoDto toDoDto){
+        ToDoDto toDoDto1 = toDoServImpl.addToDo(toDoDto);
+        return new ResponseEntity<>(toDoDto1, HttpStatus.CREATED);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @GetMapping("todo/{id}")
+    public ResponseEntity<ToDoDto> getMyTODoByID(@PathVariable("id") Long id){
+        ToDoDto toDoDto1 = toDoServImpl.getToDoById(id);
+        return new ResponseEntity<>(toDoDto1, HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @GetMapping("alltodos")
+    public ResponseEntity<List<ToDoDto>> getAllMyToDos(){
+        List<ToDoDto> mylist = toDoServImpl.getAllToDos();
+        return new ResponseEntity<>(mylist, HttpStatus.OK);
+    }
+
+
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("update/todo/{id}")
+    public ResponseEntity<ToDoDto> updateMyToDo(@PathVariable("id") Long id, @RequestBody ToDoDto dto){
+        ToDoDto toDoDto1 = toDoServImpl.updateToDo(id,dto);
+        return new ResponseEntity<>(toDoDto1, HttpStatus.OK);
+    }
+
+
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("delete/todo/{id}")
+    public ResponseEntity<String> delMyToDo(@PathVariable("id") Long id){
+        String str = toDoServImpl.deleteToDo(id);
+        return new ResponseEntity<>(str, HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PatchMapping("todo/comp/{id}")
+    public ResponseEntity<ToDoDto> completeMyToDo(@PathVariable("id") Long id){
+        ToDoDto newtoDo = toDoServImpl.completeToDo(id);
+        return new ResponseEntity<>(newtoDo, HttpStatus.OK);
+
+    }
+
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PatchMapping("todo/incomp/{id}")
+    public ResponseEntity<ToDoDto> incompleteMyToDo(@PathVariable("id") Long id){
+        ToDoDto newtoDo = toDoServImpl.incompleteToDo(id);
+        return new ResponseEntity<>(newtoDo, HttpStatus.OK);
+
+    }
+
 }
