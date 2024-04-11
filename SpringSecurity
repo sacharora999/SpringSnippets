@@ -1,0 +1,9 @@
+<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+</dependency>
+
+
+spring.security.user.name=sachin
+spring.security.user.password=sachin
+spring.security.user.roles=ADMIN, USER, MANAGER
